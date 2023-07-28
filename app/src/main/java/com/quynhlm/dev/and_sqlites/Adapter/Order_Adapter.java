@@ -2,7 +2,6 @@ package com.quynhlm.dev.and_sqlites.Adapter;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.sqlite.SQLiteConstraintException;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
@@ -18,38 +17,41 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.quynhlm.dev.and_sqlites.Dao.ProductDao;
-import com.quynhlm.dev.and_sqlites.Model.Product;
+import com.quynhlm.dev.and_sqlites.Dao.OrderDao;
+import com.quynhlm.dev.and_sqlites.Model.Orders;
 import com.quynhlm.dev.and_sqlites.R;
 
 import java.util.ArrayList;
 
-public class Product_Adapter extends RecyclerView.Adapter<Product_Adapter.ProductViewHolder> {
+public class Order_Adapter extends RecyclerView.Adapter<Order_Adapter.OrderViewHolder> {
+
     Context context;
-    ArrayList<Product> list;
+    ArrayList<Orders> list;
 
-    ProductDao productDao;
+    OrderDao ordersDao;
 
-    EditText edt_name, edt_price, edt_quantity, edt_describe;
+    EditText edt_name, edt_price, edt_product_id, edt_quantity;
 
-    public Product_Adapter(Context context, ArrayList<Product> list) {
+    public Order_Adapter(Context context, ArrayList<Orders> list) {
         this.context = context;
         this.list = list;
-        productDao = new ProductDao(context);
+        ordersDao = new OrderDao(context);
     }
 
     @NonNull
     @Override
-    public ProductViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_product, parent, false);
-        return new ProductViewHolder(view);
+    public OrderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.item_order, parent, false);
+        return new OrderViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ProductViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull OrderViewHolder holder, int position) {
         holder.txt_id.setText(list.get(position).getProduct_id() + "");
         holder.txt_name.setText(list.get(position).getName());
         holder.txt_price.setText(list.get(position).getPrice() + "");
+        holder.txt_quantity.setText(list.get(position).getQuantity() + "");
+        holder.txt_money.setText(list.get(position).getMoney() + "");
         holder.itemView.setOnClickListener(view -> {
             ShowPopur_menu(view, position);
         });
@@ -70,68 +72,63 @@ public class Product_Adapter extends RecyclerView.Adapter<Product_Adapter.Produc
                 }
                 return false;
             }
-
         });
         popupMenu.show();
     }
 
-    private void DeleteItem(int position) {
-        Product product = list.get(position);
+    private void UpdateItem(int position) {
+        Orders orders = list.get(position);
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("thong bao");
-        builder.setMessage("ban co chan chan muon xoa " + product.getName() + " Ko ?");
+        builder.setMessage("ban co chan chan muon xoa " + orders.getName() + " Ko ?");
         builder.setPositiveButton("xoa", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                try {
-                    if (productDao.deleteDate(product)) {
-                        Toast.makeText(context, "Xoa thanh cong", Toast.LENGTH_SHORT).show();
-                        list.remove(product);
-                        notifyItemRemoved(position);
-                        notifyItemChanged(position);
-                    } else {
-                        Toast.makeText(context, "Xoa that bai", Toast.LENGTH_SHORT).show();
-                    }
-                } catch (SQLiteConstraintException e) {
-                    Toast.makeText(context, "Xoa that bai co lien ket", Toast.LENGTH_SHORT).show();
+                if (ordersDao.delete(orders.getId())) {
+                    Toast.makeText(context, "xoa thanh cong", Toast.LENGTH_SHORT).show();
+                    list.remove(orders);
+                    notifyItemRemoved(position);
+                    notifyItemChanged(position);
+                } else {
+                    Toast.makeText(context, "xoa that bai", Toast.LENGTH_SHORT).show();
                 }
+
             }
         });
         builder.setNegativeButton("huy", null);
         builder.show();
     }
 
-    private void UpdateItem(int position) {
+    private void DeleteItem(int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        View mView = LayoutInflater.from(context).inflate(R.layout.item_add_product, null);
+        View mView = LayoutInflater.from(context).inflate(R.layout.item_add_order, null);
         builder.setView(mView);
         AlertDialog alertDialog = builder.create();
-        edt_name = mView.findViewById(R.id.edt_product_add_name);
-        edt_price = mView.findViewById(R.id.edt_product_add_price);
-        edt_describe = mView.findViewById(R.id.edt_product_add_describe);
-        edt_quantity = mView.findViewById(R.id.edt_product_add_quantity);
-
-        edt_name.setText(list.get(position).getName());
-        edt_price.setText(list.get(position).getPrice() + "");
-        edt_price.setText(list.get(position).getDescribe());
-        edt_quantity.setText(list.get(position).getQuantity() + "");
-        mView.findViewById(R.id.btnAdd_Product).setOnClickListener(view2 -> {
+        edt_name = mView.findViewById(R.id.edt_order_add_name);
+        edt_price = mView.findViewById(R.id.edt_order_add_price);
+        edt_product_id = mView.findViewById(R.id.edt_order_add_product_id);
+        edt_quantity = mView.findViewById(R.id.edt_order_add_quantity);
+        mView.findViewById(R.id.btn_Add_Order).setOnClickListener(view2 -> {
             String name = edt_name.getText().toString().trim();
             double price = Double.parseDouble(edt_price.getText().toString().trim());
             int quantity = Integer.parseInt(edt_quantity.getText().toString().trim());
-            String describe = edt_describe.getText().toString().trim();
-            Product product = list.get(position);
-            product.setName(name);
-            product.setPrice(price);
-            product.setQuantity(quantity);
-            product.setDescribe(describe);
-            if (productDao.updateDate(product)) {
+            int product_id = Integer.parseInt(edt_product_id.getText().toString().trim());
+            double tongtien = quantity * price;
+            Orders orders = new Orders();
+            orders.setName(name);
+            orders.setPrice(price);
+            orders.setQuantity(quantity);
+            orders.setMoney(tongtien);
+            orders.setProduct_id(product_id);
+
+            if (ordersDao.UpdateData(orders)) {
                 Toast.makeText(context, "sua thanh cong", Toast.LENGTH_SHORT).show();
-                list.add(product);
+                list.set(position, orders);
                 notifyDataSetChanged();
             } else {
                 Toast.makeText(context, "sua that bai", Toast.LENGTH_SHORT).show();
             }
+
         });
         alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         alertDialog.show();
@@ -142,15 +139,17 @@ public class Product_Adapter extends RecyclerView.Adapter<Product_Adapter.Produc
         return list.size();
     }
 
-    class ProductViewHolder extends RecyclerView.ViewHolder {
+    class OrderViewHolder extends RecyclerView.ViewHolder {
 
-        TextView txt_id, txt_name, txt_price;
+        TextView txt_name, txt_price, txt_id, txt_money, txt_quantity;
 
-        public ProductViewHolder(@NonNull View itemView) {
+        public OrderViewHolder(@NonNull View itemView) {
             super(itemView);
-            txt_id = itemView.findViewById(R.id.txt_product_id);
-            txt_name = itemView.findViewById(R.id.txt_product_name);
-            txt_price = itemView.findViewById(R.id.txt_product_price);
+            txt_id = itemView.findViewById(R.id.txt_order_product_id);
+            txt_name = itemView.findViewById(R.id.txt_order_product_name);
+            txt_price = itemView.findViewById(R.id.txt_order_product_price);
+            txt_quantity = itemView.findViewById(R.id.txt_order_product_quantity);
+            txt_money = itemView.findViewById(R.id.txt_order_product_money);
         }
     }
 }

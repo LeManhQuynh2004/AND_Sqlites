@@ -6,8 +6,10 @@ public class Orders {
     private double price;
     private int quantity;
     private double money;
-
     private int product_id;
+
+    public Orders() {
+    }
 
     public Orders(int id, String name, double price, int quantity, double money, int product_id) {
         this.id = id;
@@ -56,5 +58,13 @@ public class Orders {
 
     public void setMoney(double money) {
         this.money = money;
+    }
+
+    public int getProduct_id() {
+        return product_id;
+    }
+
+    public void setProduct_id(int product_id) {
+        this.product_id = product_id;
     }
 }

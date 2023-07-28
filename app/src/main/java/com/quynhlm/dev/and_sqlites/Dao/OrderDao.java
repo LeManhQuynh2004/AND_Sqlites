@@ -19,7 +19,7 @@ public class OrderDao {
         db_helper = new Db_Helper(context);
     }
 
-    public void insertData(Orders orders) {
+    public boolean insertData(Orders orders) {
         SQLiteDatabase sqLiteDatabase = db_helper.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put("name", orders.getName());
@@ -28,25 +28,18 @@ public class OrderDao {
         contentValues.put("quantity", orders.getQuantity());
         contentValues.put("product_id", orders.getName());
         long check = sqLiteDatabase.insert("Orders", null, contentValues);
-        if (check > 0) {
-            Toast.makeText(context, "Thêm thành công", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, "Thêm thất bại", Toast.LENGTH_SHORT).show();
-        }
+        orders.setId((int) check);
+        return check > 0;
     }
 
-    public void delete(int id) {
+    public boolean delete(int id) {
         SQLiteDatabase sqLiteDatabase = db_helper.getWritableDatabase();
         String dk[] = {String.valueOf(id)};
         long check = sqLiteDatabase.delete("Orders", "id=?", dk);
-        if (check > 0) {
-            Toast.makeText(context, "Xoa thành công", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, "Xoa thất bại", Toast.LENGTH_SHORT).show();
-        }
+        return check > 0;
     }
 
-    public void UpdateData(Orders orders) {
+    public boolean UpdateData(Orders orders) {
         SQLiteDatabase sqLiteDatabase = db_helper.getWritableDatabase();
         String dk[] = {String.valueOf(orders.getId())};
         ContentValues contentValues = new ContentValues();
@@ -56,20 +49,19 @@ public class OrderDao {
         contentValues.put("quantity", orders.getQuantity());
         contentValues.put("product_id", orders.getName());
         long check = sqLiteDatabase.update("Orders", contentValues, "id=?", dk);
-        if (check > 0) {
-            Toast.makeText(context, "Sua thành công", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(context, "Sua thất bại", Toast.LENGTH_SHORT).show();
-        }
+        return check > 0;
     }
 
     public ArrayList<Orders> selectAll() {
         ArrayList<Orders> list = new ArrayList<>();
         SQLiteDatabase sqLiteDatabase = db_helper.getReadableDatabase();
-        Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM Orders",null);
-        if(cursor.getCount()>0){
+        Cursor cursor = sqLiteDatabase.rawQuery("SELECT * FROM Orders", null);
+        if (cursor.getCount() > 0) {
             cursor.moveToFirst();
-            
+            do {
+                list.add(new Orders(cursor.getInt(0), cursor.getString(1), cursor.getDouble(2), cursor.getInt(3), cursor.getDouble(4), cursor.getInt(5)));
+            } while (cursor.moveToNext());
         }
+        return list;
     }
 }
