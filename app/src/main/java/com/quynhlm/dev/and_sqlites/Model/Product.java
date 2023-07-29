@@ -1,6 +1,8 @@
 package com.quynhlm.dev.and_sqlites.Model;
 
-public class Product {
+import java.io.Serializable;
+
+public class Product implements Serializable {
     private int product_id;
     private String name;
     private double price;

@@ -26,7 +26,7 @@ public class OrderDao {
         contentValues.put("price", orders.getPrice());
         contentValues.put("money", orders.getMoney());
         contentValues.put("quantity", orders.getQuantity());
-        contentValues.put("product_id", orders.getName());
+        contentValues.put("product_id", orders.getProduct_id());
         long check = sqLiteDatabase.insert("Orders", null, contentValues);
         orders.setId((int) check);
         return check > 0;

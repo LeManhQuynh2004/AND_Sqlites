@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.database.sqlite.SQLiteConstraintException;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,8 +20,10 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.quynhlm.dev.and_sqlites.Dao.ProductDao;
+import com.quynhlm.dev.and_sqlites.MainActivity;
 import com.quynhlm.dev.and_sqlites.Model.Product;
 import com.quynhlm.dev.and_sqlites.R;
+import com.quynhlm.dev.and_sqlites.Ui.Show_Detail_Fragment;
 
 import java.util.ArrayList;
 
@@ -52,6 +55,15 @@ public class Product_Adapter extends RecyclerView.Adapter<Product_Adapter.Produc
         holder.txt_price.setText(list.get(position).getPrice() + "");
         holder.itemView.setOnClickListener(view -> {
             ShowPopur_menu(view, position);
+        });
+        holder.txt_show_detail.setOnClickListener(view -> {
+            Show_Detail_Fragment show_detail_fragment = new Show_Detail_Fragment();
+            Product product = list.get(position);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("product", product);
+            show_detail_fragment.setArguments(bundle);
+
+            ((MainActivity) context).getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, show_detail_fragment).commit();
         });
     }
 
@@ -144,13 +156,14 @@ public class Product_Adapter extends RecyclerView.Adapter<Product_Adapter.Produc
 
     class ProductViewHolder extends RecyclerView.ViewHolder {
 
-        TextView txt_id, txt_name, txt_price;
+        TextView txt_id, txt_name, txt_price, txt_show_detail;
 
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
             txt_id = itemView.findViewById(R.id.txt_product_id);
             txt_name = itemView.findViewById(R.id.txt_product_name);
             txt_price = itemView.findViewById(R.id.txt_product_price);
+            txt_show_detail = itemView.findViewById(R.id.txt_show_detail);
         }
     }
 }

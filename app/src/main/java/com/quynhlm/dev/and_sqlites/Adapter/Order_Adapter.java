@@ -76,7 +76,7 @@ public class Order_Adapter extends RecyclerView.Adapter<Order_Adapter.OrderViewH
         popupMenu.show();
     }
 
-    private void UpdateItem(int position) {
+    private void DeleteItem(int position) {
         Orders orders = list.get(position);
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("thong bao");
@@ -99,7 +99,7 @@ public class Order_Adapter extends RecyclerView.Adapter<Order_Adapter.OrderViewH
         builder.show();
     }
 
-    private void DeleteItem(int position) {
+    private void UpdateItem(int position) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         View mView = LayoutInflater.from(context).inflate(R.layout.item_add_order, null);
         builder.setView(mView);
